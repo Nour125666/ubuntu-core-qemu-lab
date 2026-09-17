@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -eu
+
+echo "Starz device agent started."
+
+while true
+do
+    MESSAGE="$(date -u '+%Y-%m-%dT%H:%M:%SZ') Starz agent is alive"
+
+    # Written to systemd journal, visible with `snap logs`.
+    echo "$MESSAGE"
+
+    # Persistent data shared across snap revisions.
+    echo "$MESSAGE" >> "$SNAP_COMMON/agent.log"
+
+    sleep 30
+done
+

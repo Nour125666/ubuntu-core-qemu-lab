@@ -1,0 +1,34 @@
+name: starz-core-demo
+base: core24
+version: "0.1"
+summary: First Starz Ubuntu Core application snap
+description: |
+  A learning snap for Ubuntu Core 24.
+
+  It provides:
+  - a command-line hello application
+  - a continuously running background device agent
+
+grade: devel
+confinement: strict
+
+platforms:
+  all:
+    build-on:
+      - amd64
+    build-for:
+      - all
+
+apps:
+  hello:
+    command: bin/hello
+
+  agent:
+    command: bin/agent
+    daemon: simple
+    restart-condition: on-failure
+
+parts:
+  application:
+    plugin: dump
+    source: src

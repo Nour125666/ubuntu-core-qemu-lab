@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo "Hello from the Starz Ubuntu Core snap."
+echo
+echo "Snap name:       $SNAP_NAME"
+echo "Snap revision:   $SNAP_REVISION"
+echo "Read-only snap:  $SNAP"
+echo "Revision data:   $SNAP_DATA"
+echo "Common data:     $SNAP_COMMON"
