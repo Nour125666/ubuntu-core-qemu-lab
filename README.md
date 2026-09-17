@@ -1,110 +1,111 @@
-🧩 Ubuntu Core 24 QEMU Lab
+# 🧩 Ubuntu Core 24 QEMU Lab
 
-A reproducible Ubuntu Core 24 experiment using Snapcraft, ubuntu-image, QEMU, and OVMF/UEFI on an amd64 virtual target.
+> A reproducible Ubuntu Core 24 experiment using **Snapcraft**, **ubuntu-image**, **QEMU**, and **OVMF/UEFI** on an `amd64` virtual target.
 
-This repository documents a working Ubuntu Core environment built and tested in QEMU from a WSL2 Ubuntu development host.
+This repository documents a working **Ubuntu Core 24 environment** assembled and tested in QEMU from an Ubuntu development environment running under **WSL2**.
 
-The project was created as a practical way to understand how Ubuntu Core is assembled, how a device is defined through a model assertion, how custom applications are packaged as snaps, and how a complete Ubuntu Core disk image can be booted and validated before moving to real embedded hardware.
+The purpose of the project is to explore the main Ubuntu Core concepts in practice:
 
-🚀 Project at a Glance
+- image assembly
+- model assertions
+- Snapcraft
+- application snaps
+- snap-managed services
+- QEMU virtualization
+- UEFI boot with OVMF
+- immutable Linux system architecture
 
-Target OS: Ubuntu Core 24
-Architecture: amd64
-Virtual Platform: QEMU
-Firmware: OVMF / UEFI
-Image Builder: ubuntu-image
-Application Packaging: Snapcraft
-Package / Service Manager: snapd
-Development Host: Ubuntu under WSL2
+---
 
-✅ What Was Validated
+## 🚀 Project at a Glance
 
-Feature
+| Item | Technology |
+|---|---|
+| Target OS | Ubuntu Core 24 |
+| Architecture | `amd64` |
+| Virtual Platform | QEMU |
+| Firmware | OVMF / UEFI |
+| Image Builder | `ubuntu-image` |
+| Application Packaging | Snapcraft |
+| Package / Service Manager | `snapd` |
+| Development Environment | Ubuntu under WSL2 |
 
-Status
+---
 
-Ubuntu Core 24 model assertion
+## ✅ Validation Status
 
-✅
+| Feature | Status |
+|---|---|
+| Ubuntu Core 24 model assertion | ✅ Validated |
+| Image assembly with `ubuntu-image` | ✅ Validated |
+| QEMU boot | ✅ Validated |
+| OVMF / UEFI boot flow | ✅ Validated |
+| First-boot Ubuntu Core setup | ✅ Validated |
+| Snapcraft project creation | ✅ Validated |
+| Custom application snap build | ✅ Validated |
+| Snap command execution | ✅ Validated |
+| Snap-managed application/service | ✅ Validated |
 
-Image assembly with ubuntu-image
+---
 
-✅
+## 🧠 Architecture
 
-QEMU boot
+Ubuntu Core is assembled from several independently managed components.
 
-✅
+```text
+                Model Assertion
+                      │
+                      ▼
+                 ubuntu-image
+                      │
+                      ▼
+              Ubuntu Core Image
+                      │
+                      ▼
+                 QEMU + OVMF
+                      │
+                      ▼
+                Ubuntu Core 24
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+        ▼             ▼             ▼
+    pc gadget     pc-kernel       core24
+                                    │
+                                    ▼
+                                  snapd
+                                    │
+                                    ▼
+                           Application Snaps
+```
 
-OVMF / UEFI boot flow
+The custom application follows a separate Snapcraft workflow:
 
-✅
-
-First-boot Ubuntu Core setup
-
-✅
-
-Snapcraft project creation
-
-✅
-
-Custom application snap build
-
-✅
-
-Snap command execution
-
-✅
-
-Snap-managed background service
-
-✅
-
-🧠 Architecture
-
-The project follows the standard Ubuntu Core model:
-
-Canonical Model Assertion
-          │
-          ▼
-     ubuntu-image
-          │
-          ▼
-  Ubuntu Core Disk Image
-          │
-          ▼
-      QEMU + OVMF
-          │
-          ▼
-      Ubuntu Core 24
-          │
-          ├── pc gadget snap
-          ├── pc-kernel snap
-          ├── core24 base snap
-          ├── snapd
-          └── optional application snaps
-
-The custom application is developed independently with Snapcraft:
-
+```text
 Application Source
        │
        ▼
-  snapcraft.yaml
+ snapcraft.yaml
        │
        ▼
     Snapcraft
        │
        ▼
- Custom .snap
+   Custom .snap
        │
        ▼
-Install / test on Ubuntu Core
+ Ubuntu Core Device
+```
 
-📂 Repository Structure
+---
 
+## 📂 Repository Structure
+
+This repository contains the reproducible source and configuration files used during the experiment.
+
+```text
 ubuntu-core-qemu-lab/
 ├── README.md
-├── LICENSE
-├── .gitignore
 │
 ├── model/
 │   └── ubuntu-core-24-amd64.model
@@ -113,6 +114,7 @@ ubuntu-core-qemu-lab/
 │   └── starz-core-demo/
 │       ├── snap/
 │       │   └── snapcraft.yaml
+│       │
 │       └── src/
 │           └── bin/
 │               ├── agent
@@ -120,243 +122,479 @@ ubuntu-core-qemu-lab/
 │
 └── docs/
     └── seed.manifest
+```
 
-Generated files such as disk images, built snaps, firmware copies, build directories and backups are intentionally excluded from Git.
+Generated disk images, built snaps, firmware copies, temporary build directories and backups are intentionally not stored in the repository.
 
-🔐 Ubuntu Core Model Assertion
+---
 
-The QEMU image uses the official Canonical Ubuntu Core 24 amd64 model:
+## 🔐 Ubuntu Core Model Assertion
 
+Ubuntu Core uses a **model assertion** to define the identity and essential components of a device.
+
+The model used in this experiment is the official Canonical Ubuntu Core 24 `amd64` model.
+
+Important fields include:
+
+```text
 model: ubuntu-core-24-amd64
 architecture: amd64
 base: core24
 grade: signed
+```
 
-The model defines the essential Ubuntu Core components:
+The model defines the main Ubuntu Core components:
 
-pc          → gadget snap
-pc-kernel   → kernel snap
-core24      → base snap
-snapd       → snap management / lifecycle
-console-conf → optional first-boot configuration application
+```text
+pc
+ └── gadget snap
 
-This repository keeps the model assertion under:
+pc-kernel
+ └── kernel snap
 
+core24
+ └── base snap
+
+snapd
+ └── snap lifecycle and management
+
+console-conf
+ └── optional first-boot configuration application
+```
+
+The model assertion is stored at:
+
+```text
 model/ubuntu-core-24-amd64.model
+```
 
-The model is signed by Canonical and contains no private signing key.
+It is signed by Canonical and does not contain a private signing key.
 
-📦 Custom Snapcraft Project
+---
 
-The custom application snap is stored under:
+## 📦 Custom Snapcraft Application
 
+The custom Snapcraft project is located under:
+
+```text
 snap-project/starz-core-demo/
+```
 
-Current structure:
+Its structure is:
 
+```text
 starz-core-demo/
 ├── snap/
 │   └── snapcraft.yaml
+│
 └── src/
     └── bin/
         ├── agent
         └── hello
+```
 
-The snap can be built with:
+The `snapcraft.yaml` file defines how the application is packaged.
 
+A snap can be built from the project directory using:
+
+```bash
 cd snap-project/starz-core-demo
 snapcraft
+```
 
-The resulting .snap file is a generated build artifact and is therefore not committed to Git.
+The generated file is similar to:
 
-🏗️ Image Assembly
+```text
+starz-core-demo_0.1_all.snap
+```
 
-The Ubuntu Core image is assembled from the signed model assertion using ubuntu-image.
+The `.snap` file is a generated build artifact and is therefore not committed to Git.
 
-Conceptually:
+---
 
+## 🏗️ Ubuntu Core Image Assembly
+
+Ubuntu Core images are assembled using `ubuntu-image`.
+
+Conceptually, the process is:
+
+```text
 ubuntu-core-24-amd64.model
-          │
-          ▼
-      ubuntu-image
-          │
-          ├── pc gadget
-          ├── pc-kernel
-          ├── core24
-          ├── snapd
-          └── console-conf
-          │
-          ▼
-        pc.img
+             │
+             ▼
+        ubuntu-image
+             │
+     ┌───────┼─────────┐
+     │       │         │
+     ▼       ▼         ▼
+  gadget   kernel    core24
+     │       │         │
+     └───────┼─────────┘
+             │
+             ▼
+           snapd
+             │
+             ▼
+           pc.img
+```
 
-pc.img is a generated disk image and is not stored in the Git repository.
+The resulting disk image was used as the virtual disk for QEMU.
 
-🖥️ QEMU / OVMF
+Generated images such as:
 
-The generated disk image was booted using QEMU with OVMF firmware.
+```text
+pc.img
+pc-old.img
+```
 
-The local development directory used files such as:
+are intentionally excluded from this repository.
 
+---
+
+## 🖥️ QEMU and OVMF
+
+The generated Ubuntu Core image was tested using **QEMU**.
+
+OVMF provides the UEFI firmware environment required to boot the virtual machine.
+
+The local development environment used files such as:
+
+```text
 OVMF_CODE_4M.secboot.fd
 OVMF_VARS_4M.ms.fd
 pc.img
+```
 
-These files are intentionally excluded from Git because they are generated or third-party runtime artifacts.
+The boot flow is approximately:
 
-The Git repository should instead document how to obtain or generate them.
-
-🔄 Snap Services
-
-Ubuntu Core applications can expose both interactive commands and background daemons.
-
-Typical inspection commands include:
-
-snap list
-
-snap services
-
-snap logs <snap-name>
-
-This project was used to validate the idea that product software can be packaged and managed independently from the base Ubuntu Core system.
-
-🧱 Why Ubuntu Core Is Different
-
-A traditional embedded Linux image is often treated as one root filesystem.
-
-Ubuntu Core separates the system into independently managed components:
-
-Kernel Snap
-     +
-Gadget Snap
-     +
-Base Snap
-     +
+```text
+QEMU
+ │
+ ▼
+OVMF / UEFI
+ │
+ ▼
+Ubuntu Core Bootloader
+ │
+ ▼
+Linux Kernel
+ │
+ ▼
+Ubuntu Core 24
+ │
+ ▼
 snapd
-     +
+ │
+ ▼
 Application Snaps
-     +
-Signed Model Assertion
+```
 
-This architecture introduces:
+The OVMF firmware files and generated disk image are runtime/build artifacts and are not committed to this repository.
 
-transactional updates
+---
 
-rollback
+## ⚙️ First Boot
 
-immutable system components
+After the image is assembled, Ubuntu Core performs its initialization process during first boot.
 
-explicit device identity
+The system can then be inspected using standard snap commands.
 
-snap confinement
+For example:
 
-independent application lifecycle
+```bash
+snap list
+```
 
-clear separation between board support and product software
+To inspect application services:
 
-🧪 Why QEMU First?
+```bash
+snap services
+```
 
-QEMU provides a controlled environment for learning Ubuntu Core before adding board-specific complexity.
+To inspect snap logs:
 
-The progression is:
+```bash
+snap logs <snap-name>
+```
 
-Ubuntu Core concepts
+---
+
+## 🔄 Snap-Managed Applications and Services
+
+Ubuntu Core applications are packaged independently from the base operating system.
+
+A snap can expose:
+
+```text
+Interactive Commands
+        +
+Background Services
+```
+
+Conceptually:
+
+```text
+Application Snap
+      │
+      ├── command
+      │
+      └── daemon
+             │
+             ▼
+           snapd
+             │
+             ▼
+      Service Management
+```
+
+This separation allows application software to have its own release and update lifecycle.
+
+---
+
+## 🧱 Ubuntu Core Architecture
+
+Traditional embedded Linux images are often assembled as one large root filesystem.
+
+Ubuntu Core uses a different model.
+
+```text
+┌─────────────────────────────┐
+│        Application Snaps    │
+├─────────────────────────────┤
+│            snapd            │
+├─────────────────────────────┤
+│          Base Snap          │
+├─────────────────────────────┤
+│         Kernel Snap         │
+├─────────────────────────────┤
+│         Gadget Snap         │
+└─────────────────────────────┘
+              │
+              ▼
+       Physical / Virtual
+           Hardware
+```
+
+A signed **model assertion** defines which components belong to the device.
+
+This architecture provides concepts such as:
+
+- transactional updates
+- rollback
+- immutable system components
+- independent application lifecycle
+- explicit device identity
+- snap confinement
+- separation between platform and application software
+
+---
+
+## 🧪 Why QEMU?
+
+QEMU provides a controlled environment where the Ubuntu Core architecture can be tested before dealing with physical-board-specific problems.
+
+The development progression is:
+
+```text
+Ubuntu Core Concepts
         │
         ▼
-Snapcraft application
+Snapcraft Application
         │
         ▼
-Model assertion
+Model Assertion
         │
         ▼
 ubuntu-image
         │
         ▼
-Bootable amd64 image
+Bootable Image
         │
         ▼
-QEMU validation
+QEMU Validation
+        │
+        ▼
+Physical Embedded Hardware
+```
 
-This creates a baseline before moving to hardware-specific work such as STM32MP1 board enablement.
+This makes QEMU a useful first validation stage.
 
-🔗 Relationship to the STM32MP1 Project
+---
 
-This repository is the generic Ubuntu Core / QEMU baseline.
+## 🐧 Development Environment
 
-A separate project handles the STM32MP157F-DK2 board-specific work:
+The project was developed under **WSL2**.
 
+```text
+Windows Host
+     │
+     ▼
+WSL2 Ubuntu
+     │
+     ▼
+Snapcraft / ubuntu-image
+     │
+     ▼
+QEMU
+     │
+     ▼
+Ubuntu Core 24
+```
+
+This setup provided a complete Linux-based development environment while running from a Windows workstation.
+
+---
+
+## 🔗 Relationship to the STM32MP1 Project
+
+This repository represents the **generic Ubuntu Core / QEMU experiment**.
+
+A separate project applies the same concepts to the **STM32MP157F-DK2**.
+
+```text
 Ubuntu Core QEMU Lab
         │
-        │ validates Ubuntu Core concepts
-        ▼
-STM32MP157F-DK2 Board Enablement
         │
+        │ Understand and validate
+        │ Ubuntu Core architecture
+        │
+        ▼
+STM32MP157F-DK2 Ubuntu Core Enablement
+        │
+        ├── ST OpenSTLinux BSP
         ├── custom kernel snap
         ├── custom gadget snap
-        ├── ST OpenSTLinux BSP
         ├── Device Tree
         ├── boot firmware
         └── board-specific storage layout
+```
 
-The QEMU lab demonstrates the Ubuntu Core workflow.
+The QEMU project validates the Ubuntu Core workflow.
 
-The STM32MP1 project applies the same architecture to real embedded hardware.
+The STM32MP1 project extends that workflow into **real board enablement**.
 
-📤 What Is Included in Git
+---
 
-✅ Included
+## 📊 What This Project Demonstrates
 
-README.md
-LICENSE
-.gitignore
-ubuntu-core-24-amd64.model
-seed.manifest
+### Ubuntu Core
+
+```text
+Model Assertions
+ubuntu-image
+snapd
+Immutable Linux Architecture
+Transactional System Design
+```
+
+### Snapcraft
+
+```text
 snapcraft.yaml
-application scripts/source
+Application Snaps
+Commands
+Services
+Application Packaging
+```
+
+### Virtualization
+
+```text
+QEMU
+OVMF
+UEFI
+Virtual Disk Images
+```
+
+### Linux
+
+```text
+Boot Flow
+Service Management
+Shell Environment
+Image-Based Deployment
+```
+
+### Development Environment
+
+```text
+Ubuntu
+WSL2
+Command-Line Tooling
+Reproducible Project Structure
+```
+
+---
+
+## 📤 Repository Policy
+
+### Included
+
+```text
+README.md
+model assertion
+seed manifest
+snapcraft.yaml
+application source/scripts
 documentation
+```
 
-❌ Excluded
+### Not Included
 
-pc.img
-pc-old.img
+```text
+*.img
 *.snap
-OVMF firmware files
+OVMF firmware copies
 Snapcraft build directories
+temporary files
 backup files
-logs
 private keys
 credentials
-tokens
+authentication tokens
+```
 
-🛠️ Skills Demonstrated
+This keeps the repository focused on **reproducible source and configuration** instead of generated artifacts.
 
-Ubuntu Core
+---
 
-Model Assertions · ubuntu-image · snapd · Immutable Linux
+## 🎯 Project Purpose
 
-Snapcraft
+This project is primarily an **Ubuntu Core learning, experimentation and validation environment**.
 
-snapcraft.yaml · Application Snaps · Services
+It demonstrates a complete workflow from:
 
-Virtualization
+```text
+Device Model
+     │
+     ▼
+Image Assembly
+     │
+     ▼
+Virtual Boot
+     │
+     ▼
+Snap Application
+     │
+     ▼
+Service Execution
+```
 
-QEMU · OVMF · UEFI
+It also serves as the conceptual baseline for the more advanced STM32MP1 Ubuntu Core board-enablement work.
 
-Embedded Linux
+---
 
-Image Assembly · Boot Flow · Service Management
+## 📌 Current Status
 
-Development Environment
+> **Ubuntu Core 24 amd64 QEMU environment successfully assembled and validated. ✅**
 
-Linux · WSL2 · Shell
+The next level of the project moves beyond generic virtual hardware toward custom embedded-board support.
 
-🎯 Project Purpose
+---
 
-This repository is a learning, experimentation and validation environment for Ubuntu Core.
+## 📄 License
 
-It establishes a working Ubuntu Core baseline before moving to more advanced, board-specific embedded Linux work.
+The repository contains project-owned scripts/configuration alongside files originating from or describing third-party Ubuntu components.
 
-📄 License
+Any third-party Canonical, Ubuntu, Snapcraft or OVMF component remains subject to its original license.
 
-Choose an explicit license for the source code, scripts and documentation you own.
-
-Third-party Ubuntu, Canonical and OVMF components remain subject to their own licenses and are not relicensed by this repository.
+A separate open-source license can be applied to the original project files and documentation where appropriate.
